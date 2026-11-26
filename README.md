@@ -102,7 +102,7 @@ for macOS.
 or [**Download .app**](https://github.com/AmitRajput-Dev/SonyBridge/releases/latest)
 
 </td>
-<td>macOS 12+ · Apple Silicon &amp; Intel</td>
+<td>macOS 13+ · Apple Silicon &amp; Intel</td>
 </tr>
 </table>
 
