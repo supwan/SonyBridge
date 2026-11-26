@@ -35,7 +35,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             openWindow: { [weak self] in self?.popover.performClose(nil); Self.openMainWindow() },
             quit: { NSApp.terminate(nil) }
         ))
-        if #available(macOS 13.0, *) { panel.sizingOptions = .preferredContentSize }
+        panel.sizingOptions = .preferredContentSize
         popover.contentViewController = panel
         popover.behavior = .transient
 
@@ -61,9 +61,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             popover.performClose(nil)
         } else {
             refreshMultipointIfIdle()
-            if let panel = popover.contentViewController, #unavailable(macOS 13.0) {
-                popover.contentSize = panel.view.fittingSize
-            }
             popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
         }
