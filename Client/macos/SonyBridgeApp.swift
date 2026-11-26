@@ -11,54 +11,33 @@ struct SonyBridgeApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        WindowGroup {
+        // A single-instance window: SwiftUI reopens this one window (from the Dock, the Window menu or
+        // `openWindow`) instead of creating more, and offers no File > New.
+        Window("SonyBridge", id: MainWindow.id) {
             ContentView()
-                .background(MainWindowTracker())
         }
         .defaultSize(width: 460, height: 760)
-        .commands {
-            // SonyBridge has a single main window; File > New would only open duplicates.
-            CommandGroup(replacing: .newItem) {}
-        }
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    // The status item needs a running app, so it's installed once launching finishes.
     func applicationDidFinishLaunching(_ notification: Notification) {
         MenuBarController.install()
     }
-
-    // Clicking the Dock icon with the window closed brings the same window back instead of making a new one.
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if flag { return false }
-        return !MainWindow.show()
-    }
 }
 
-// Keeps the main window alive across close/reopen (the menu bar and the Dock bring it back with its state).
+// Lets the AppKit menu-bar item open the SwiftUI window.
 enum MainWindow {
-    fileprivate static var window: NSWindow?
+    static let id = "main"
 
-    @discardableResult
-    static func show() -> Bool {
+    // Captured from the window's environment when it first appears. It's app-wide, so it keeps working
+    // after the window is closed.
+    static var openAction: OpenWindowAction?
+
+    static func show() {
+        // The menu-bar panel doesn't make the app frontmost, so bring it forward with the window.
         NSApp.activate(ignoringOtherApps: true)
-        guard let window = window else { return false }
-        window.makeKeyAndOrderFront(nil)
-        return true
+        openAction?(id: id)
     }
-}
-
-// Captures the hosting NSWindow so it can be reopened rather than recreated.
-private struct MainWindowTracker: NSViewRepresentable {
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        DispatchQueue.main.async { [weak view] in
-            guard let window = view?.window, MainWindow.window !== window else { return }
-            MainWindow.window = window
-            window.isReleasedWhenClosed = false
-        }
-        return view
-    }
-
-    func updateNSView(_ nsView: NSView, context: Context) {}
 }
