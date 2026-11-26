@@ -93,7 +93,7 @@ final class HeadphonesModel: ObservableObject {
     private var pollTimer: Timer?
     private var dynamicTimer: Timer?
 
-    // Slider-drag coalescing (mirrors the ImGui in-flight gate in CrossPlatformGUI).
+    // Slider-drag coalescing (an in-flight gate).
     // While an exchange is in flight, only the latest value is remembered; when the
     // exchange completes, at most one more send fires with that latest value. All
     // state is main-thread-confined (bridge completions arrive on the main queue).
