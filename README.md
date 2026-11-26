@@ -27,9 +27,9 @@
 
 <br/>
 
-<img src="docs/screenshots/themes.png" width="100%" alt="SonyBridge in its three themes: Refined Dark, Native Glass and Sony Signature">
+<img src="docs/screenshots/window-light.png" width="320" alt="SonyBridge main window in light mode"> <img src="docs/screenshots/window-dark.png" width="320" alt="SonyBridge main window in dark mode">
 
-<sub>Three looks, one app: <b>Refined Dark</b> · <b>Native Glass</b> (follows light/dark) · <b>Sony Signature</b> — pick one under ⋯ → Appearance.</sub>
+<sub>A native SwiftUI window with Liquid Glass controls on macOS 26+, following the system's light/dark appearance.</sub>
 
 </div>
 
@@ -50,7 +50,7 @@ for macOS.
 
 - 🎚️ **Ambient Sound Control** — Noise Cancelling · Ambient Sound (0–20 levels) · Off
 - 🗣️ **Focus on Voice** passthrough
-- 🎛️ **Equalizer** — presets *and* a full **Manual mode** with 5 bands + Clear Bass (10 bands on the WH-1000XM6), with a live curve preview
+- 🎛️ **Equalizer** — presets *and* a full **Manual mode** with 5 bands + Clear Bass (10 bands on the WH-1000XM6)
 - ✨ **DSEE** — Sony's audio upscaling for compressed sources
 - 🔋 **Battery level** — live percentage, including **per-earbud + case** for TWS models
 - 🎧 **Codec & firmware** readout
@@ -59,32 +59,19 @@ for macOS.
 - 🔄 **Live button sync** — changes made on the headset reflect in the app
 - 🔌 **Auto-connect** to your already-paired Sony headset
 - 🍫 **Menu-bar quick controls** — click the menu-bar icon for mode, ambient level, Focus on Voice, EQ preset, battery and playback pinning without opening the window (right-click for the menu)
-- ↔️ **Resizable window** — a tall single column by default; widen it past 720pt for a two-column layout
 - 📱 **Multipoint** — see which devices are connected, switch playback between them, pin playback to this Mac, and turn "Connect to 2 devices" on or off
 - 🧬 **Dual-protocol** — auto-detects and speaks either protocol generation
-- 🌑 **Modern UI** — three themes on macOS (Refined Dark, Native Glass, Sony Signature), shaped after Sony's own app
+- 🍏 **Native macOS UI** — SwiftUI with Liquid Glass on macOS 26 and later (materials on 13–15): glass noise-control tiles, Control Center-style menu-bar modules, light/dark mode
 
 <details>
-<summary><b>📸 Full screenshots</b></summary>
+<summary><b>📸 Menu-bar panel</b></summary>
 <br/>
 
-| Refined Dark | Native Glass (light) | Native Glass (dark) | Sony Signature |
-| :---: | :---: | :---: | :---: |
-| <img src="docs/screenshots/refined-dark.png" width="200" alt="Refined Dark theme"> | <img src="docs/screenshots/native-glass-light.png" width="200" alt="Native Glass theme, light"> | <img src="docs/screenshots/native-glass-dark.png" width="200" alt="Native Glass theme, dark"> | <img src="docs/screenshots/sony-signature.png" width="200" alt="Sony Signature theme"> |
+| Light | Dark |
+| :---: | :---: |
+| <img src="docs/screenshots/panel-light.png" width="300" alt="Menu-bar quick controls, light"> | <img src="docs/screenshots/panel-dark.png" width="300" alt="Menu-bar quick controls, dark"> |
 
-**Wide window (two columns)**
-
-<img src="docs/screenshots/wide-refined-dark.png" width="100%" alt="Two-column window, Refined Dark">
-
-| Menu-bar panel: Refined Dark | Native Glass | Sony Signature |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/panel-refined-dark.png" width="240" alt="Menu-bar quick controls, Refined Dark"> | <img src="docs/screenshots/panel-native-glass-light.png" width="240" alt="Menu-bar quick controls, Native Glass"> | <img src="docs/screenshots/panel-sony-signature.png" width="240" alt="Menu-bar quick controls, Sony Signature"> |
-
-**WH-1000XM6 ten-band equalizer**
-
-<img src="docs/screenshots/xm6-ten-band-eq.png" width="380" alt="Ten-band equalizer on the WH-1000XM6">
-
-<sub>Rendered from the app's own views; the device list shows placeholder names.</sub>
+<sub>Rendered from the app's own views with placeholder data.</sub>
 </details>
 
 ## 📥 Download

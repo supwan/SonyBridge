@@ -21,8 +21,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     static func install() {
         guard instance == nil else { return }
-        // The panel can open before the window has appeared, so don't wait for it to apply the theme.
-        AppTheme.stored.applyToApp()
         instance = MenuBarController()
     }
 
