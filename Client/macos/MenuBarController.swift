@@ -7,10 +7,10 @@ import AppKit
 import Combine
 import SwiftUI
 
-// Installed once from AppDelegate; reads and drives the same HeadphonesModel as the window. The icon shows the
+// Installed once from the app delegate (SonyBridgeApp.swift); reads and drives the same HeadphonesModel as the window. The icon shows the
 // playback device next to the headphones (phone, computer, or its multipoint slot number), and the headphones
 // fill in while playback is fixed to this Mac.
-@objc final class MenuBarController: NSObject, NSMenuDelegate {
+final class MenuBarController: NSObject, NSMenuDelegate {
     private static var instance: MenuBarController?
 
     private let model = HeadphonesModel.shared
@@ -19,7 +19,7 @@ import SwiftUI
     private let popover = NSPopover()
     private var cancellables = Set<AnyCancellable>()
 
-    @objc static func install() {
+    static func install() {
         guard instance == nil else { return }
         // The panel can open before the window has appeared, so don't wait for it to apply the theme.
         AppTheme.stored.applyToApp()
@@ -35,7 +35,7 @@ import SwiftUI
             openWindow: { [weak self] in self?.popover.performClose(nil); Self.openMainWindow() },
             quit: { NSApp.terminate(nil) }
         ))
-        if #available(macOS 13.0, *) { panel.sizingOptions = .preferredContentSize }
+        panel.sizingOptions = .preferredContentSize
         popover.contentViewController = panel
         popover.behavior = .transient
 
@@ -61,17 +61,13 @@ import SwiftUI
             popover.performClose(nil)
         } else {
             refreshMultipointIfIdle()
-            if let panel = popover.contentViewController, #unavailable(macOS 13.0) {
-                popover.contentSize = panel.view.fittingSize
-            }
             popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
         }
     }
 
     static func openMainWindow() {
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.windows.first { $0.contentViewController != nil && !($0 is NSPanel) }?.makeKeyAndOrderFront(nil)
+        MainWindow.show()
     }
 
     // Re-read so the panel or menu reflects changes made from the phone or the headset.
