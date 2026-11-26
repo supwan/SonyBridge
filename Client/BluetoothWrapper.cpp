@@ -53,21 +53,10 @@ void BluetoothWrapper::connect(const std::string& addr)
 
 void BluetoothWrapper::disconnect() noexcept
 {
-#if defined(_WIN32)
-	// Close the link BEFORE taking the lock. A worker thread can hold _connectorMtx while blocked in
-	// recv(), and closing the socket is exactly what wakes it up - taking the lock first deadlocks the
-	// UI thread until the recv timeout expires, and hangs the app on exit. The Windows connector's
-	// disconnect() is safe to call concurrently with an in-flight recv().
-	this->_connector->disconnect();
-	std::lock_guard guard(this->_connectorMtx);
-	this->_seqNumber = 0;
-	this->_leftoverBytes.clear();
-#else
 	std::lock_guard guard(this->_connectorMtx);
 	this->_seqNumber = 0;
 	this->_leftoverBytes.clear();
 	this->_connector->disconnect();
-#endif
 }
 
 
