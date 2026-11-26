@@ -1,6 +1,6 @@
 //
 //  HeadphonesBridge.mm
-//  Obj-C++ implementation owning the C++ core. Mirrors the connect/apply flow the old ViewController had.
+//  Obj-C++ implementation owning the C++ core. Owns the connect/apply flow the SwiftUI model drives.
 //
 
 #import "HeadphonesBridge.h"
