@@ -1,6 +1,6 @@
 //
 //  QuickControlsView.swift
-//  The menu-bar panel: the everyday controls without opening the window.
+//  The menu-bar panel: the everyday controls as Control Center-style modules.
 //
 
 import SwiftUI
@@ -10,172 +10,143 @@ struct QuickControlsView: View {
     let quit: () -> Void
 
     @ObservedObject private var model = HeadphonesModel.shared
-    @AppStorage(AppTheme.storageKey) private var theme = AppTheme.refinedDark
-    @Environment(\.colorScheme) private var colorScheme
 
-    private var palette: Palette { theme.palette(colorScheme) }
-
-    // 320pt gives each mode segment a little more room than the window's at its 360pt minimum, so
-    // "Noise Canceling" fits within the mode control's minimum scale. The height follows the content.
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             if model.connected {
                 connectedContent
             } else {
                 disconnectedContent
             }
-            Divider().background(palette.cardStroke)
-            footer
+            HStack {
+                Button("Open SonyBridge…", action: openWindow)
+                Spacer()
+                Button("Quit", action: quit)
+            }
+            .glassButtonStyle()
+            .padding(.top, 4)
         }
         .padding(14)
         .frame(width: 320)
-        .background(palette.background)
-        .environment(\.appTheme, theme)
     }
 
     private var disconnectedContent: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             Image(systemName: "headphones")
-                .font(.system(size: 34, weight: .thin))
-                .foregroundColor(palette.secondary)
-            Text("No headphones connected")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(palette.secondary)
+                .font(.system(size: 28, weight: .light))
+                .foregroundStyle(.secondary)
+                .frame(width: 64, height: 64)
+                .glassSurface(in: Circle())
+            Text("No Headphones Connected")
+                .font(.headline)
             errorText
             ConnectButton(model: model)
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 6)
+        .module(padding: 16)
     }
 
     @ViewBuilder
     private var connectedContent: some View {
-        HStack(spacing: 12) {
-            ProductImage(deviceName: model.deviceName, size: 56)
-            VStack(alignment: .leading, spacing: 6) {
+        HStack(spacing: 10) {
+            ProductImage(deviceName: model.deviceName, size: 44)
+            VStack(alignment: .leading, spacing: 2) {
                 Text(model.deviceName)
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(palette.primary)
+                    .font(.headline)
                     .lineLimit(1)
-                StatusChips(model: model, showsMode: false)
+                BatterySummary(model: model)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
+        .module(padding: 10)
 
-        AmbientModeControl(model: model)
+        NoiseModeTiles(model: model, diameter: 46)
+            .module(padding: 12)
 
         if model.mode == .ambientSound {
-            HStack(spacing: 10) {
-                Text("Level")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(palette.secondary)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Ambient Sound")
+                    .font(.subheadline.weight(.semibold))
                 AmbientLevelSlider(model: model)
-                Text("\(model.ambientLevel)")
-                    .font(.system(size: 12, weight: .semibold, design: theme.isSignature ? .monospaced : .rounded))
-                    .foregroundColor(palette.accentText)
-                    .frame(width: 22, alignment: .trailing)
+                if model.focusOnVoiceAvailable {
+                    HStack {
+                        Text("Focus on voice")
+                        Spacer()
+                        FocusOnVoiceToggle(model: model)
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                            .labelsHidden()
+                    }
+                }
             }
-            if model.focusOnVoiceAvailable {
-                FocusOnVoiceSwitch(model: model)
-            }
+            .module()
         }
 
-        if model.supportsEqualizer || model.hasPlaybackPinState {
-            VStack(alignment: .leading, spacing: 12) {
-                if model.supportsEqualizer {
-                    equalizerRow
-                }
-                if model.supportsEqualizer && model.hasPlaybackPinState {
-                    Divider().background(palette.cardStroke)
-                }
-                if model.hasPlaybackPinState {
-                    playbackRow
-                }
+        if model.supportsEqualizer {
+            HStack {
+                Label("Equalizer", systemImage: "slider.vertical.3")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                EqualizerPicker(model: model, title: "Equalizer")
+                    .labelsHidden()
+                    .fixedSize()
             }
-            .themedCard(compact: true)
+            .module(padding: 10)
+        }
+
+        if model.hasPlaybackPinState {
+            playbackModule
         }
 
         errorText
     }
 
-    private var equalizerRow: some View {
-        HStack {
-            Text("Equalizer")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(palette.primary)
-            Spacer()
-            Picker("Equalizer", selection: Binding(
-                get: { model.eqPreset },
-                set: { model.setEqualizer($0) }
-            )) {
-                ForEach(EQPresets.list(tenBand: model.tenBandEqualizer), id: \.1) { preset in
-                    Text(preset.0).tag(preset.1)
-                }
-            }
-            .pickerStyle(MenuPickerStyle())
-            .labelsHidden()
-            .frame(width: 120)
-            .accentColor(palette.accent)
-        }
-    }
-
-    private var playbackRow: some View {
+    private var playbackModule: some View {
         let canPin = model.thisMac != nil && !model.playbackPinnedToThisMac
-        return VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
-                Image(systemName: "speaker.wave.2.fill")
-                    .font(.system(size: 12))
-                    .foregroundColor(palette.accent)
-                    .frame(width: 18)
-                VStack(alignment: .leading, spacing: 2) {
+        return VStack(alignment: .leading, spacing: 8) {
+            Label {
+                VStack(alignment: .leading, spacing: 1) {
                     Text(model.playbackPinned ? "Playback fixed to" : "Playing on")
-                        .font(.system(size: 11))
-                        .foregroundColor(palette.secondary)
-                    Text(model.playbackDevice.map { $0.name.isEmpty ? $0.address : $0.name } ?? "No playback device")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(palette.primary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(playbackName)
+                        .font(.subheadline.weight(.semibold))
                         .lineLimit(1)
                 }
+            } icon: {
+                Image(systemName: model.playbackPinned ? "lock.fill" : "speaker.wave.2.fill")
+                    .foregroundStyle(.secondary)
             }
             if canPin || model.playbackPinned {
-                HStack(spacing: 8) {
+                HStack {
                     if canPin {
-                        CapsuleButton("Pin to this Mac", action: model.pinPlaybackToThisMac)
+                        Button("Pin to This Mac", action: model.pinPlaybackToThisMac)
                     }
                     if model.playbackPinned {
-                        CapsuleButton("Unfix") { model.setPlaybackPinned(false) }
+                        Button("Unfix") { model.setPlaybackPinned(false) }
                     }
                 }
+                .glassButtonStyle()
+                .controlSize(.small)
                 .disabled(model.multipointBusy)
             }
         }
+        .module()
+    }
+
+    private var playbackName: String {
+        guard let device = model.playbackDevice else { return "No playback device" }
+        return device.name.isEmpty ? device.address : device.name
     }
 
     @ViewBuilder
     private var errorText: some View {
         if let error = model.errorMessage {
-            Text(error)
-                .font(.system(size: 11))
-                .foregroundColor(palette.danger)
-                .multilineTextAlignment(.center)
+            Label(error, systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.red)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity)
         }
-    }
-
-    private var footer: some View {
-        HStack {
-            Button(action: openWindow) {
-                Text("Open SonyBridge")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(palette.accentText)
-            }
-            Spacer()
-            Button(action: quit) {
-                Text("Quit")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(palette.secondary)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
     }
 }

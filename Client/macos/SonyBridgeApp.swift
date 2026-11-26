@@ -13,9 +13,9 @@ struct SonyBridgeApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(maxWidth: 1200)
-                .background(MainWindowConfigurator())
+                .background(MainWindowTracker())
         }
+        .defaultSize(width: 460, height: 760)
         .commands {
             // SonyBridge has a single main window; File > New would only open duplicates.
             CommandGroup(replacing: .newItem) {}
@@ -48,25 +48,14 @@ enum MainWindow {
     }
 }
 
-// Applies the AppKit-only window settings SwiftUI has no modifier for on macOS 12: a remembered frame,
-// a tall portrait default, and a transparent, title-less title bar. Appearance follows the selected theme.
-private struct MainWindowConfigurator: NSViewRepresentable {
+// Captures the hosting NSWindow so it can be reopened rather than recreated.
+private struct MainWindowTracker: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
         DispatchQueue.main.async { [weak view] in
             guard let window = view?.window, MainWindow.window !== window else { return }
             MainWindow.window = window
             window.isReleasedWhenClosed = false
-            window.contentMinSize = NSSize(width: 360, height: 500)
-            window.contentMaxSize = NSSize(width: 1200, height: CGFloat.greatestFiniteMagnitude)
-            if !window.setFrameUsingName("SonyBridgeMain") {
-                let visibleHeight = (window.screen?.visibleFrame.height ?? 880) - 60
-                window.setContentSize(NSSize(width: 400, height: min(820, max(500, visibleHeight))))
-                window.center()
-            }
-            window.setFrameAutosaveName("SonyBridgeMain")
-            window.titlebarAppearsTransparent = true
-            window.titleVisibility = .hidden
         }
         return view
     }
