@@ -764,10 +764,3 @@ struct ConnectButton: View {
         .disabled(model.connecting)
     }
 }
-
-// Factory so the Obj-C++ ViewController can instantiate the SwiftUI hierarchy.
-@objc final class HeadphonesUIFactory: NSObject {
-    @objc static func makeViewController() -> NSViewController {
-        return NSHostingController(rootView: ContentView())
-    }
-}
