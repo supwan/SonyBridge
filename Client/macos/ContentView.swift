@@ -8,6 +8,7 @@ import AppKit
 
 struct ContentView: View {
     @StateObject private var model = HeadphonesModel.shared
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         Group {
@@ -21,6 +22,7 @@ struct ContentView: View {
         .background(WindowBackdrop().ignoresSafeArea())
         .toolbarBackground(.hidden, for: .windowToolbar)
         .navigationTitle("SonyBridge")
+        .onAppear { MainWindow.openAction = openWindow }
         .toolbar {
             if model.connected {
                 ToolbarItem {
@@ -345,6 +347,7 @@ struct ContentView: View {
 
 private struct DisconnectedView: View {
     @ObservedObject var model: HeadphonesModel
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         VStack(spacing: 12) {
@@ -369,7 +372,7 @@ private struct DisconnectedView: View {
                     .controlSize(.large)
                 Button("Bluetooth Settings…") {
                     if let url = URL(string: "x-apple.systempreferences:com.apple.BluetoothSettings") {
-                        NSWorkspace.shared.open(url)
+                        openURL(url)
                     }
                 }
                 .glassButtonStyle()
